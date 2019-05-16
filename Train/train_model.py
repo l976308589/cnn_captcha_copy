@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
-import tensorflow as tf
-import numpy as np
-import matplotlib.pyplot as plt
-import time
-from PIL import Image
-import random
 import os
+import random
+import time
+
+import matplotlib.pyplot as plt
+import numpy as np
+import tensorflow as tf
+from PIL import Image
+
 from Config.config import sample_conf
 
-
 # 设置以下环境变量可开启CPU识别
-# os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-# os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
 
 class TrainError(Exception):
     pass
@@ -228,11 +230,14 @@ class TrainModel(object):
             step = 1
             for i in range(3000):
                 batch_x, batch_y = self.get_batch(i, size=128)
-                _, cost_ = sess.run([optimizer, cost], feed_dict={self.X: batch_x, self.Y: batch_y, self.keep_prob: 0.75})
+                _, cost_ = sess.run([optimizer, cost],
+                                    feed_dict={self.X: batch_x, self.Y: batch_y, self.keep_prob: 0.75})
                 if step % 10 == 0:
                     batch_x_test, batch_y_test = self.get_batch(i, size=100)
-                    acc_char = sess.run(accuracy_char_count, feed_dict={self.X: batch_x_test, self.Y: batch_y_test, self.keep_prob: 1.})
-                    acc_image = sess.run(accuracy_image_count, feed_dict={self.X: batch_x_test, self.Y: batch_y_test, self.keep_prob: 1.})
+                    acc_char = sess.run(accuracy_char_count,
+                                        feed_dict={self.X: batch_x_test, self.Y: batch_y_test, self.keep_prob: 1.})
+                    acc_image = sess.run(accuracy_image_count,
+                                         feed_dict={self.X: batch_x_test, self.Y: batch_y_test, self.keep_prob: 1.})
                     print("第{}次训练 >>> 字符准确率为 {} 图片准确率为 {} >>> loss {}".format(step, acc_char, acc_image, cost_))
                     # 图片准确率达到99%后保存并停止
                     if acc_image > 0.99:
@@ -275,9 +280,9 @@ class TrainModel(object):
 
 
 def main():
-    train_image_dir = sample_conf["train_image_dir"]
+    train_image_dir = '.' + sample_conf["train_image_dir"]
     char_set = sample_conf["char_set"]
-    model_save_dir = sample_conf["model_save_dir"]
+    model_save_dir = '.' + sample_conf["model_save_dir"]
     tm = TrainModel(train_image_dir, char_set, model_save_dir, verify=False)
     tm.train_cnn()  # 开始训练模型
     # tm.recognize_captcha()  # 识别图片示例
